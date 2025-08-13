@@ -106,19 +106,48 @@ pub fn promote_current_thread_to_real_time_internal(
 
         rt_priority_handle.previous_time_constraint_policy = time_constraints;
 
-        let cb_duration = buffer_frames as f32 / (audio_samplerate_hz as f32) * 1000.;
+        let mut cb_duration = buffer_frames as f32 / (audio_samplerate_hz as f32) * 1000.;
         // The multiplicators are somwhat arbitrary for now.
+        if cb_duration < 0.05 {
+            eprintln!("*** forced min cb_duration (50us)");
+            cb_duration = 0.05;
+        } else if cb_duration > 50.0 {
+            eprintln!("*** forced max cb_duration (50ms)");
+            cb_duration = 50.0;
+        }
 
         let mut timebase_info = mach_timebase_info_data_t { denom: 0, numer: 0 };
         mach_timebase_info(&mut timebase_info);
 
         let ms2abs: f32 = ((timebase_info.denom as f32) / timebase_info.numer as f32) * 1000000.;
 
+        /*
+            if (info->constraint < info->computation ||
+                info->computation > max_rt_quantum ||
+                info->computation < min_rt_quantum) {
+                    result = KERN_INVALID_ARGUMENT;
+                    break;
+            }
+        */
+
+        /*
+            /* smallest rt computation (50 us) */
+            clock_interval_to_absolutetime_interval(50, NSEC_PER_USEC, &abstime);
+            assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
+            min_rt_quantum = (uint32_t)abstime;
+
+            /* maximum rt computation (50 ms) */
+            clock_interval_to_absolutetime_interval(
+                    50, 1000 * NSEC_PER_USEC, &abstime);
+            assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
+            max_rt_quantum = (uint32_t)abstime;
+         */
+
         // Computation time is half of constraint, per macOS 12 behaviour.
         time_constraints = thread_time_constraint_policy_data_t {
             period: (cb_duration * ms2abs) as u32,
             computation: (cb_duration / 2.0 * ms2abs) as u32,
-            constraint: (cb_duration / 1.5 * ms2abs) as u32,
+            constraint: (cb_duration * ms2abs) as u32,
             preemptible: 1, // true
         };
 
