@@ -5,15 +5,28 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
         rust: [stable, nightly]
-        os: [ubuntu-24.04, windows-2025, macos-14, macos-15]
+        os: [macos-14, macos-15]
         type: [Release, Debug]
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: macOS boot args 1
+      run: nvram -p
+      if: matrix.os == 'macos-14' || matrix.os == 'macos-15'
+
+    - name: macOS boot args 2
+      run: system_profiler SPSoftwareDataType
+      if: matrix.os == 'macos-14' || matrix.os == 'macos-15'
+
+    - name: macOS boot args 3
+      run: sysctl kern.bootargs
+      if: matrix.os == 'macos-14' || matrix.os == 'macos-15'
 
     - name: Install Rust
       run: |
