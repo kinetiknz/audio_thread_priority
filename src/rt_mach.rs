@@ -122,6 +122,10 @@ pub fn promote_current_thread_to_real_time_internal(
             preemptible: 1, // true
         };
 
+        eprintln!(
+            "thread {tid} promoting to real time priority, {:?}",
+            time_constraints
+        );
         rv = thread_policy_set(
             tid,
             THREAD_TIME_CONSTRAINT_POLICY,
@@ -129,6 +133,7 @@ pub fn promote_current_thread_to_real_time_internal(
             THREAD_TIME_CONSTRAINT_POLICY_COUNT,
         );
         if rv != KERN_SUCCESS {
+            eprintln!("thread promotion error: thread_policy_set: time_constraint rv={rv}");
             return Err(AudioThreadPriorityError::new(
                 "thread promotion error: thread_policy_set: time_constraint",
             ));
