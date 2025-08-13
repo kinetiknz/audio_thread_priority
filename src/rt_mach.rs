@@ -131,17 +131,17 @@ pub fn promote_current_thread_to_real_time_internal(
         */
 
         /*
-            /* smallest rt computation (50 us) */
-            clock_interval_to_absolutetime_interval(50, NSEC_PER_USEC, &abstime);
-            assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
-            min_rt_quantum = (uint32_t)abstime;
+           /* smallest rt computation (50 us) */
+           clock_interval_to_absolutetime_interval(50, NSEC_PER_USEC, &abstime);
+           assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
+           min_rt_quantum = (uint32_t)abstime;
 
-            /* maximum rt computation (50 ms) */
-            clock_interval_to_absolutetime_interval(
-                    50, 1000 * NSEC_PER_USEC, &abstime);
-            assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
-            max_rt_quantum = (uint32_t)abstime;
-         */
+           /* maximum rt computation (50 ms) */
+           clock_interval_to_absolutetime_interval(
+                   50, 1000 * NSEC_PER_USEC, &abstime);
+           assert((abstime >> 32) == 0 && (uint32_t)abstime != 0);
+           max_rt_quantum = (uint32_t)abstime;
+        */
 
         // Computation time is half of constraint, per macOS 12 behaviour.
         time_constraints = thread_time_constraint_policy_data_t {
