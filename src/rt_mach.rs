@@ -118,7 +118,7 @@ pub fn promote_current_thread_to_real_time_internal(
         time_constraints = thread_time_constraint_policy_data_t {
             period: (cb_duration * ms2abs) as u32,
             computation: (cb_duration / 2.0 * ms2abs) as u32,
-            constraint: (cb_duration * ms2abs) as u32,
+            constraint: (cb_duration / 1.5 * ms2abs) as u32,
             preemptible: 1, // true
         };
 
